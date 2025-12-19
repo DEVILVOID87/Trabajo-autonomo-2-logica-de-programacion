@@ -1,72 +1,216 @@
 import random
+import string
+import os
 
-def generar_contrasena_segura():
-    # Inicialización de conjuntos de caracteres
-    LETRASMAY = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    LETRASMIN = "abcdefghijklmnopqrstuvwxyz"
-    NUMEROS = "0123456789"
-    SIMBOLOS = "!@#$%^&*="
-    
-    MIN_LONGITUD = 8
+# ==========================================
+# PROYECTO INTEGRADOR (INDIVIDUAL)
+# El impacto de las nuevas tecnologías en la sociedad:
+# visualización del futuro (CIBERSEGURIDAD)
+# ==========================================
 
-    # Bienvenida
-    print("**Bienvenido al Sistema de Generación Seguro de Contraseñas**\n")
+MIN_LONGITUD = 8
 
-    # Validación de la longitud de la contraseña
+# Conjuntos de caracteres
+LETRASMAY = string.ascii_uppercase
+LETRASMIN = string.ascii_lowercase
+NUMEROS = string.digits
+SIMBOLOS = "!@#$%^&*="
+
+# 1 GENERAR CONTRASEÑA
+
+def pedir_longitud():
     while True:
         try:
-            # Entrada del usuario (GET longitud)
-            longitud = int(input(f"Ingrese los caracteres para su contraseña (mínimo {MIN_LONGITUD} caracteres): "))
-            
-            # Condición de salida del bucle (longitud >= MIN_LONGITUD)
+            longitud = int(input(f"Ingrese la longitud (mínimo {MIN_LONGITUD}): "))
             if longitud >= MIN_LONGITUD:
-                break
+                return longitud
             else:
-                # Mensaje de error (PUT)
-                print(f"Los caracteres permitidos mínimos son {MIN_LONGITUD}. Ingrese nuevamente.\n")
+                print(f"La longitud mínima permitida es {MIN_LONGITUD}. Intente nuevamente.\n")
         except ValueError:
-            # Manejo de entrada no numérica
-            print("Entrada no válida. Por favor, ingrese un número entero.\n")
-            
-    # Inicialización de variables para la generación
+            print("Entrada no válida. Ingrese un número entero.\n")
+
+
+def generar_contrasena(longitud):
     password = ""
     contador = 0
 
-    # Bucle principal de generación de contraseña
     while contador < longitud:
-        # Generar un tipo de caracter aleatorio (1, 2, 3 o 4)
-        # FLOOR(RANDOM * 4) + 1  se traduce a random.randint(1, 4) en Python
-        tipo = random.randint(1, 4) 
-        
-        caracter = ''
-        
-        if tipo == 1: # Letra Mayúscula
-            # index ← FLOOR(RANDOM * 26) + 1 (Índice de 1 a 26)
-            # En Python, el índice va de 0 a 25.
-            index = random.randint(0, len(LETRASMAY) - 1)
-            caracter = LETRASMAY[index]
-            
-        elif tipo == 2: # Letra Minúscula
-            index = random.randint(0, len(LETRASMIN) - 1)
-            caracter = LETRASMIN[index]
-            
-        elif tipo == 3: # Número
-            index = random.randint(0, len(NUMEROS) - 1)
-            caracter = NUMEROS[index]
-            
-        elif tipo == 4: # Símbolo
-            index = random.randint(0, len(SIMBOLOS) - 1)
-            caracter = SIMBOLOS[index]
-            
-        # Concatenar caracter
-        password += caracter
-        # Incrementar contador
-        contador += 1
-    
-    # Salida de resultados y finalización
-    print("\nLa contraseña generada es:")
-    print(password)
-    print("\n¡Gracias por usar el generador! ¡Hasta pronto!")
+        tipo = random.randint(1, 4)
 
-# Ejecutar la función
-generar_contrasena_segura()
+        if tipo == 1:
+            caracter = random.choice(LETRASMAY)
+        elif tipo == 2:
+            caracter = random.choice(LETRASMIN)
+        elif tipo == 3:
+            caracter = random.choice(NUMEROS)
+        else:
+            caracter = random.choice(SIMBOLOS)
+
+        password += caracter
+        contador += 1
+
+    return password
+
+# 2 EVALUAR SEGURIDAD
+
+def evaluar_contrasena(password):
+    puntos = 0
+
+    if len(password) >= 12:
+        puntos += 2
+    elif len(password) >= 8:
+        puntos += 1
+
+    if any(c.isupper() for c in password):
+        puntos += 1
+    if any(c.islower() for c in password):
+        puntos += 1
+    if any(c.isdigit() for c in password):
+        puntos += 1
+    if any(c in SIMBOLOS for c in password):
+        puntos += 1
+
+    if puntos <= 2:
+        nivel = "BAJO"
+    elif puntos <= 4:
+        nivel = "MEDIO"
+    else:
+        nivel = "ALTO"
+
+    return puntos, nivel
+
+# 3 VISUALIZACIÓN DEL FUTURO
+
+def visualizar_futuro(nivel, adopcion):
+    if nivel == "BAJO":
+        riesgo = "ALTO"
+        impacto = "Alta probabilidad de robo de cuentas, fraudes y pérdida de privacidad."
+    elif nivel == "MEDIO":
+        riesgo = "MEDIO"
+        impacto = "Riesgo moderado; algunos ataques pueden evitarse."
+    else:
+        riesgo = "BAJO"
+        impacto = "Menor riesgo de hackeos y mejor protección de datos personales."
+
+    if adopcion == "alta":
+        escenario = (
+            "Para 2030, el aumento del uso de tecnologías y ataques automatizados "
+            "hará que las contraseñas débiles sean fácilmente vulneradas."
+        )
+    elif adopcion == "media":
+        escenario = (
+            "Para 2030, habrá mayor concientización sobre seguridad digital, "
+            "aunque seguirán existiendo riesgos."
+        )
+    else:
+        escenario = (
+            "Para 2030, el bajo avance tecnológico mantendrá riesgos asociados "
+            "al desconocimiento y malas prácticas."
+        )
+
+    return (
+        f"Riesgo: {riesgo}\n"
+        f"Impacto social: {impacto}\n"
+        f"Escenario futuro: {escenario}"
+    )
+
+# 4 EXPORTAR REPORTE
+
+def exportar_reporte(password, puntos, nivel, adopcion, futuro_texto):
+    os.makedirs("docs", exist_ok=True)
+
+    contenido = ""
+    contenido += "PROYECTO INTEGRADOR\n"
+    contenido += "El impacto de las nuevas tecnologías en la sociedad: visualización del futuro\n"
+    contenido += "Tema: Ciberseguridad y contraseñas seguras\n"
+    contenido += "------------------------------------------------------------\n"
+    contenido += f"Contraseña: {password}\n"
+    contenido += f"Longitud: {len(password)}\n"
+    contenido += f"Puntaje: {puntos}\n"
+    contenido += f"Nivel de seguridad: {nivel}\n"
+    contenido += f"Adopción tecnológica: {adopcion}\n"
+    contenido += "------------------------------------------------------------\n"
+    contenido += "VISUALIZACIÓN DEL FUTURO:\n"
+    contenido += futuro_texto + "\n"
+
+    ruta = os.path.join("docs", "reporte_proyecto.txt")
+    with open(ruta, "w", encoding="utf-8") as f:
+        f.write(contenido)
+
+    return ruta
+
+# MODO CONSOLA
+
+def ejecutar_consola():
+    ultima_contrasena = ""
+    ultimo_puntaje = 0
+    ultimo_nivel = ""
+    ultimo_futuro = ""
+    ultima_adopcion = ""
+
+    while True:
+        print("\n1) Generar contraseña")
+        print("2) Evaluar seguridad")
+        print("3) Visualizar futuro")
+        print("4) Exportar reporte")
+        print("0) Salir")
+
+        opcion = input("Seleccione una opción: ")
+
+        if opcion == "1":
+            longitud = pedir_longitud()
+            ultima_contrasena = generar_contrasena(longitud)
+            print("Contraseña generada:", ultima_contrasena)
+
+        elif opcion == "2":
+            if ultima_contrasena == "":
+                ultima_contrasena = input("Ingrese una contraseña: ")
+            ultimo_puntaje, ultimo_nivel = evaluar_contrasena(ultima_contrasena)
+            print("Puntaje:", ultimo_puntaje)
+            print("Nivel:", ultimo_nivel)
+
+        elif opcion == "3":
+            if ultimo_nivel == "":
+                print("Primero evalúe una contraseña.")
+                continue
+            ultima_adopcion = input("Adopción tecnológica (baja/media/alta): ").lower()
+            ultimo_futuro = visualizar_futuro(ultimo_nivel, ultima_adopcion)
+            print(ultimo_futuro)
+
+        elif opcion == "4":
+            if ultima_contrasena == "" or ultimo_futuro == "":
+                print("Debe completar los pasos anteriores.")
+                continue
+            ruta = exportar_reporte(
+                ultima_contrasena,
+                ultimo_puntaje,
+                ultimo_nivel,
+                ultima_adopcion,
+                ultimo_futuro
+            )
+            print("Reporte guardado en:", ruta)
+
+        elif opcion == "0":
+            break
+
+        else:
+            print("Opción no válida.")
+
+# MODO INTERFAZ GRAFICA
+
+def ejecutar_interfaz():
+    import tkinter as tk
+    from tkinter import messagebox
+
+    password = ""
+    nivel = ""
+    puntos = 0
+    futuro = ""
+
+    def generar():
+        nonlocal password
+        try:
+            longitud = int(entry_longitud.get())
+            if longitud < MIN_LONGITUD:
+                messagebox.showwarning("Aviso", "La longitud mínima es 8.")
+                return
