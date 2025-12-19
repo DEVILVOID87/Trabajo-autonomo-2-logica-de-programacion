@@ -213,4 +213,87 @@ def ejecutar_interfaz():
             longitud = int(entry_longitud.get())
             if longitud < MIN_LONGITUD:
                 messagebox.showwarning("Aviso", "La longitud mínima es 8.")
+                    def generar():
+        nonlocal password
+        try:
+            longitud = int(entry_longitud.get())
+            if longitud < MIN_LONGITUD:
+                messagebox.showwarning("Aviso", "La longitud mínima es 8.")
                 return
+        except ValueError:
+            messagebox.showwarning("Aviso", "Ingrese un número válido.")
+            return
+
+        password = generar_contrasena(longitud)
+        lbl_password.config(text=password)
+        txt_resultado.delete("1.0", tk.END)
+        txt_resultado.insert(tk.END, "Contraseña generada.\n")
+
+    def evaluar():
+        nonlocal puntos, nivel
+        if password == "":
+            messagebox.showwarning("Aviso", "Primero genere una contraseña.")
+            return
+        puntos, nivel = evaluar_contrasena(password)
+        txt_resultado.delete("1.0", tk.END)
+        txt_resultado.insert(tk.END, f"Puntaje: {puntos}\nNivel: {nivel}\n")
+
+    def ver_futuro():
+        nonlocal futuro
+        if nivel == "":
+            messagebox.showwarning("Aviso", "Primero evalúe la contraseña.")
+            return
+        adopcion = var_adopcion.get()
+        futuro = visualizar_futuro(nivel, adopcion)
+        txt_resultado.delete("1.0", tk.END)
+        txt_resultado.insert(tk.END, futuro)
+
+    def exportar():
+        if password == "" or nivel == "" or futuro == "":
+            messagebox.showwarning("Aviso", "Genere, evalúe y visualice el futuro antes de exportar.")
+            return
+        ruta = exportar_reporte(password, puntos, nivel, var_adopcion.get(), futuro)
+        messagebox.showinfo("Listo", f"Reporte guardado en:\n{ruta}")
+
+    ventana = tk.Tk()
+    ventana.title("Proyecto Integrador - Ciberseguridad")
+    ventana.geometry("520x430")
+
+    tk.Label(ventana, text="Longitud de la contraseña (mínimo 8):").pack()
+    entry_longitud = tk.Entry(ventana)
+    entry_longitud.pack()
+
+    tk.Button(ventana, text="Generar contraseña", command=generar).pack(pady=5)
+
+    tk.Label(ventana, text="Contraseña:").pack()
+    lbl_password = tk.Label(ventana, text="", fg="blue")
+    lbl_password.pack()
+
+    tk.Button(ventana, text="Evaluar seguridad", command=evaluar).pack(pady=5)
+
+    tk.Label(ventana, text="Adopción tecnológica:").pack()
+    var_adopcion = tk.StringVar(value="media")
+    tk.OptionMenu(ventana, var_adopcion, "baja", "media", "alta").pack()
+
+    tk.Button(ventana, text="Visualizar futuro", command=ver_futuro).pack(pady=5)
+    tk.Button(ventana, text="Exportar reporte", command=exportar).pack(pady=5)
+
+    tk.Label(ventana, text="Resultados:").pack()
+    txt_resultado = tk.Text(ventana, height=10, width=60)
+    txt_resultado.pack(pady=5)
+
+    ventana.mainloop()
+
+def main():
+    print("Seleccione el modo de ejecución:")
+    print("1) Consola")
+    print("2) Interfaz gráfica")
+    opcion = input("Opción: ").strip()
+
+    if opcion == "2":
+        ejecutar_interfaz()
+    else:
+        ejecutar_consola()
+
+if __name__ == "__main__":
+    main()
